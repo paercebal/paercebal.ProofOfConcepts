@@ -116,18 +116,18 @@ namespace paercebal.ProofOfConcepts.Pocs
         private int MouseDraggingShapeOldZIndex = 0;
         private Point OldPosition = new Point(double.NaN, double.NaN);
 
-        private void OnShapeMouseDown(Shape shape, MouseButtonEventArgs e)
+        private void StartShapeDragging(Shape shape, Point mousePosition)
         {
             if (this.MouseDraggingShape == null)
             {
                 this.MouseDraggingShape = shape;
-                this.OldPosition = e.GetPosition(this.MyCanvas);
+                this.OldPosition = mousePosition;
                 this.MouseDraggingShapeOldZIndex = Canvas.GetZIndex(shape);
                 Canvas.SetZIndex(shape, 1000);
             }
         }
 
-        private void StopShapeDragging(Shape shape)
+        private void StopShapeDragging(Shape shape, Point mousePosition)
         {
             if (this.MouseDraggingShape != null)
             {
@@ -140,44 +140,93 @@ namespace paercebal.ProofOfConcepts.Pocs
             this.MouseDraggingShapeOldZIndex = 0;
         }
 
+        private void ContinueShapeDragging(Shape shape, Point mousePosition)
+        {
+            var shapePosition = (shape != null) ? new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape)) : new Point(double.NaN, double.NaN);
+            this.PrintDebugInfo(mousePosition, shapePosition);
+
+            if (shape != null && this.MouseDraggingShape == shape)
+            {
+                var move = mousePosition - this.OldPosition;
+
+                if((Math.Abs(move.X) > this.GridSnappingValue) || (Math.Abs(move.Y) > this.GridSnappingValue))
+                {
+                    var newPosition = new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape));
+                    newPosition += move;
+                    Canvas.SetLeft(shape, newPosition.X);
+                    Canvas.SetTop(shape, newPosition.Y);
+                    this.OldPosition = mousePosition;
+                    shape.Opacity = 0.5;
+                }
+            }
+        }
+
+        private void OnShapeMouseDown(Shape shape, MouseButtonEventArgs e)
+        {
+            this.StartShapeDragging(shape, e.GetPosition(this.MyCanvas));
+        }
+
         private void OnShapeMouseUp(Shape shape, MouseButtonEventArgs e)
         {
-            this.StopShapeDragging(shape);
+            this.StopShapeDragging(shape, e.GetPosition(this.MyCanvas));
         }
 
         private void OnShapeMouseMove(Shape shape, MouseEventArgs e)
         {
-            this.PrintDebugInfo(e.GetPosition(this.MyCanvas), new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape)));
-
-            if (shape != null && this.MouseDraggingShape == shape)
-            {
-                var position = new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape));
-                position += e.GetPosition(this.MyCanvas) - this.OldPosition;
-                Canvas.SetLeft(shape, position.X);
-                Canvas.SetTop(shape, position.Y);
-                this.OldPosition = e.GetPosition(this.MyCanvas);
-                shape.Opacity = 0.5;
-            }
+            this.ContinueShapeDragging(shape, e.GetPosition(this.MyCanvas));
         }
 
         private void OnShapeMouseLeave(Shape shape, MouseEventArgs e)
         {
-            this.PrintDebugInfo(e.GetPosition(this.MyCanvas), new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape)));
+            this.ContinueShapeDragging(shape, e.GetPosition(this.MyCanvas));
+        }
 
-            if (shape != null && this.MouseDraggingShape == shape)
-            {
-                var position = new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape));
-                position += e.GetPosition(this.MyCanvas) - this.OldPosition;
-                Canvas.SetLeft(shape, position.X);
-                Canvas.SetTop(shape, position.Y);
-                this.OldPosition = e.GetPosition(this.MyCanvas);
-                shape.Opacity = 0.5;
-            }
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            this.ContinueShapeDragging(this.MouseDraggingShape, e.GetPosition(this.MyCanvas));
         }
 
         private void Canvas_MouseLeave(object sender, MouseEventArgs e)
         {
-            this.StopShapeDragging(this.MouseDraggingShape);
+            this.StopShapeDragging(this.MouseDraggingShape, e.GetPosition(this.MyCanvas));
+        }
+
+        private double GridSnappingValuePrivate = 1;
+        private double GridSnappingValue
+        {
+            get
+            {
+                if (double.IsNaN(this.GridSnappingValuePrivate)
+                    || double.IsInfinity(this.GridSnappingValuePrivate)
+                    || (this.GridSnappingValuePrivate < 1))
+                {
+                    return 1;
+                }
+
+                return this.GridSnappingValuePrivate;
+            }
+            set
+            {
+                this.GridSnappingValuePrivate = value;
+            }
+        }
+
+        private void UpdateGridSnappingValueFromTextBox()
+        {
+            if (double.TryParse(this.GridSnappingTextBox.Text, out double result))
+            {
+                this.GridSnappingValue = result;
+            }
+        }
+
+        private void GridSnappingTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            this.UpdateGridSnappingValueFromTextBox();
+        }
+
+        private void GridSnappingTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            this.UpdateGridSnappingValueFromTextBox();
         }
     }
 }
