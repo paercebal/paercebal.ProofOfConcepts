@@ -71,10 +71,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pocs\ShapesAndBrushes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pocs\CanvasAndShapesInShapes.xaml.cs">
       <DependentUpon>CanvasAndShapesInShapes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pocs\ShapesAndBrushes.xaml.cs">
+      <DependentUpon>ShapesAndBrushes.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -102,4 +109,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>XCOPY $(ProjectDir)\media .\media /E /C /I /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
