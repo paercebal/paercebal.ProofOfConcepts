@@ -20,6 +20,8 @@ namespace paercebal.ProofOfConcepts.Pocs
     /// </summary>
     public partial class CanvasAndShapesInShapes : UserControl
     {
+        readonly Random random = new Random();
+
         public CanvasAndShapesInShapes()
         {
             InitializeComponent();
@@ -30,7 +32,15 @@ namespace paercebal.ProofOfConcepts.Pocs
             this.MyCanvas.Children.Clear();
             int zIndex = 0;
 
-            Shape createRectangle(in Canvas canvas, ref int zIndex_, double left, double top, double width, double height, Brush brush)
+            void SetEventsOnShape(Shape shape)
+            {
+                shape.MouseDown += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseDown(shape, e1); };
+                shape.MouseUp += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseUp(shape, e1); };
+                shape.MouseMove += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseMove(shape, e1); };
+                shape.MouseLeave += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseLeave(shape, e1); }; ;
+            }
+
+            Shape CreateRectangle(Canvas canvas, ref int zIndex_, double left, double top, double width, double height, Brush brush)
             {
                 var shape = new Rectangle();
                 shape.Width = width;
@@ -39,16 +49,13 @@ namespace paercebal.ProofOfConcepts.Pocs
                 Canvas.SetLeft(shape, left);
                 Canvas.SetTop(shape, top);
                 Canvas.SetZIndex(shape, zIndex_++);
-                shape.MouseDown += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseDown(shape, e1); };
-                shape.MouseUp += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseUp(shape, e1); };
-                shape.MouseMove += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseMove(shape, e1); };
-                shape.MouseLeave += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseLeave(shape, e1); }; ;
-                this.MyCanvas.Children.Add(shape);
+                SetEventsOnShape(shape);
+                canvas.Children.Add(shape);
 
                 return shape;
             }
 
-            Shape createCircle(in Canvas canvas, ref int zIndex_, double left, double top, double radius, Brush brush)
+            Shape CreateCircle(Canvas canvas, ref int zIndex_, double left, double top, double radius, Brush brush)
             {
                 var shape = new Ellipse();
                 shape.Width = radius;
@@ -57,16 +64,13 @@ namespace paercebal.ProofOfConcepts.Pocs
                 Canvas.SetLeft(shape, left);
                 Canvas.SetTop(shape, top);
                 Canvas.SetZIndex(shape, zIndex_++);
-                shape.MouseDown += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseDown(shape, e1); };
-                shape.MouseUp += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseUp(shape, e1); };
-                shape.MouseMove += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseMove(shape, e1); };
-                shape.MouseLeave += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseLeave(shape, e1); }; ;
-                this.MyCanvas.Children.Add(shape);
+                SetEventsOnShape(shape);
+                canvas.Children.Add(shape);
 
                 return shape;
             }
 
-            Shape createDiamond(in Canvas canvas, ref int zIndex_, double left, double top, double width, double height, Brush brush)
+            Shape CreateDiamond(Canvas canvas, ref int zIndex_, double left, double top, double width, double height, Brush brush)
             {
                 var shape = new Polygon();
                 shape.Points.Add(new Point(width / 2, 0));
@@ -77,19 +81,46 @@ namespace paercebal.ProofOfConcepts.Pocs
                 Canvas.SetLeft(shape, left);
                 Canvas.SetTop(shape, top);
                 Canvas.SetZIndex(shape, zIndex_++);
-                shape.MouseDown += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseDown(shape, e1); };
-                shape.MouseUp += (object sender1, MouseButtonEventArgs e1) => { this.OnShapeMouseUp(shape, e1); };
-                shape.MouseMove += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseMove(shape, e1); };
-                shape.MouseLeave += (object sender1, MouseEventArgs e1) => { this.OnShapeMouseLeave(shape, e1); }; ;
-                this.MyCanvas.Children.Add(shape);
+                SetEventsOnShape(shape);
+                canvas.Children.Add(shape);
 
                 return shape;
             }
 
-            createRectangle(this.MyCanvas, ref zIndex, 50, 100, 100, 100, Brushes.Aquamarine);
-            createRectangle(this.MyCanvas, ref zIndex, 75, 75, 75, 150, Brushes.LightSalmon);
-            createCircle(this.MyCanvas, ref zIndex, 150, 150, 50, Brushes.Cyan);
-            createDiamond(this.MyCanvas, ref zIndex, 300, 100, 50, 200, Brushes.MediumPurple);
+            Shape CreateRandomPolygon(Canvas canvas, ref int zIndex_, double left, double top, double width, double height, Brush brush)
+            {
+                Point nextRandomPoint()
+                {
+                    return new Point(random.Next((int)width), random.Next((int)height));
+                }
+
+                Polygon createRandomPolygonSkeleton()
+                {
+                    var shape_ = new Polygon();
+                    for(int i = 0, iMax = random.Next(4, 9); i < iMax; ++i)
+                    {
+                        shape_.Points.Add(nextRandomPoint());
+                    }
+
+                    return shape_;
+                }
+
+                var shape = createRandomPolygonSkeleton();
+                shape.Fill = brush;
+                Canvas.SetLeft(shape, left);
+                Canvas.SetTop(shape, top);
+                Canvas.SetZIndex(shape, zIndex_++);
+                SetEventsOnShape(shape);
+                canvas.Children.Add(shape);
+
+                return shape;
+            }
+
+            CreateRectangle(this.MyCanvas, ref zIndex, 50, 100, 100, 100, Brushes.Aquamarine);
+            CreateRectangle(this.MyCanvas, ref zIndex, 75, 75, 75, 150, Brushes.LightSalmon);
+            CreateCircle(this.MyCanvas, ref zIndex, 150, 150, 50, Brushes.Cyan);
+            CreateDiamond(this.MyCanvas, ref zIndex, 300, 100, 50, 200, Brushes.MediumPurple);
+            CreateRandomPolygon(this.MyCanvas, ref zIndex, 300, 50, 250, 250, Brushes.Red);
         }
 
         private void SetDebugText(string text)
