@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:paercebal.ProofOfConcepts"
         xmlns:pocs="clr-namespace:paercebal.ProofOfConcepts.Pocs"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Background="#66AAFF">
+        Title="MainWindow" Height="500" Width="800" Background="#66AAFF">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

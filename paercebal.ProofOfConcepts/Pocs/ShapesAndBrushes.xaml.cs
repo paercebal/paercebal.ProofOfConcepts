@@ -22,9 +22,11 @@ namespace paercebal.ProofOfConcepts.Pocs
     {
         static readonly Dictionary<string, Brush> brushes = new Dictionary<string, Brush>();
 
-        static private Brush GetBrushFromImage(string filename)
+        static private Brush GetBrushFromImage(int size, string filename)
         {
-            if (brushes.TryGetValue(filename, out Brush brush))
+            var id = string.Format("{0}|{1}", filename, size);
+
+            if (brushes.TryGetValue(id, out Brush brush))
             {
                 return brush;
             }
@@ -33,14 +35,18 @@ namespace paercebal.ProofOfConcepts.Pocs
             // BitmapImage.UriSource must be in a BeginInit/EndInit block.
             bi.BeginInit();
             bi.UriSource = new Uri("pack://siteoforigin:,,," + filename, UriKind.RelativeOrAbsolute);
+            bi.DecodePixelWidth = size;
             bi.EndInit();
 
             var ib = new ImageBrush();
             ib.ImageSource = bi;
-            ib.Viewbox = new Rect(0, 0, 0.25, 0.25);
+            ib.TileMode = TileMode.Tile;
             ib.Stretch = Stretch.None;
+            //ib.Viewbox = new Rect(0, 0, 200, 200);
             //ib.ViewboxUnits = BrushMappingMode.Absolute;
-            brushes[filename] = ib;
+            ib.Viewport = new Rect(0, 0, size, size);
+            ib.ViewportUnits = BrushMappingMode.Absolute;
+            brushes[id] = ib;
 
             return ib;
         }
@@ -69,8 +75,13 @@ namespace paercebal.ProofOfConcepts.Pocs
                 return shape;
             }
 
-            CreateRectangle(this.MyCanvas, ref zIndex, 50, 50, 100, 100, GetBrushFromImage(@"/media/tiles/tile_gray_gradient.png"));
-            CreateRectangle(this.MyCanvas, ref zIndex, 200, 50, 200, 100, GetBrushFromImage(@"/media/tiles/tile_gray_gradient.png"));
+            CreateRectangle(this.MyCanvas, ref zIndex, 100, 25, 100, 100, Brushes.AliceBlue);
+            CreateRectangle(this.MyCanvas, ref zIndex, 200, 25, 400, 100, Brushes.Aqua);
+            CreateRectangle(this.MyCanvas, ref zIndex, 100, 125, 200, 200, Brushes.LightGreen);
+
+            CreateRectangle(this.MyCanvas, ref zIndex, 100, 25, 100, 100, GetBrushFromImage(50, @"/media/tiles/tile_gradient_red_border.png"));
+            CreateRectangle(this.MyCanvas, ref zIndex, 200, 25, 400, 100, GetBrushFromImage(25, @"/media/tiles/tile_gradient_green_border.png"));
+            CreateRectangle(this.MyCanvas, ref zIndex, 100, 125, 200, 200, GetBrushFromImage(50, @"/media/tiles/tile_gradient_blue_border.png"));
         }
 
         private void SetDebugText(string text)
