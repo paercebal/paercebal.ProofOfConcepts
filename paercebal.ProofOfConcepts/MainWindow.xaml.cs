@@ -21,6 +21,7 @@ namespace paercebal.ProofOfConcepts
     public partial class MainWindow : Window
     {
         readonly List<UIElement> elements = new List<UIElement>();
+        UIElement activeElement = null;
 
         public MainWindow()
         {
@@ -43,10 +44,13 @@ namespace paercebal.ProofOfConcepts
                 return g;
             }
 
+            // Add tabs below =========================================================================
             InititalizeOneElement<Pocs.CanvasAndShapesInShapes>("Canvas + Shapes");
-            var visible = InititalizeOneElement<Pocs.ShapesAndBrushes>("Shapes + Brushes");
+            InititalizeOneElement<Pocs.ShapesAndBrushes>("Shapes + Brushes");
+            this.activeElement = InititalizeOneElement<Pocs.Viewing3DPoc.Viewing3D>("Viewing 3D");
+            // Add tabs above =========================================================================
 
-            this.HideAllContainersButOne(visible);
+            this.HideAllContainersButOne(this.activeElement);
         }
 
         private void HideAllContainersButOne(UIElement activeElement)
@@ -54,6 +58,18 @@ namespace paercebal.ProofOfConcepts
             foreach(var element in this.elements)
             {
                 element.Visibility = (element == activeElement) ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            this.activeElement = activeElement;
+        }
+
+        public void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            var viewing3D = this.activeElement as Pocs.Viewing3DPoc.Viewing3D;
+
+            if(viewing3D != null)
+            {
+                viewing3D.OnKeyDown(sender, e);
             }
         }
     }

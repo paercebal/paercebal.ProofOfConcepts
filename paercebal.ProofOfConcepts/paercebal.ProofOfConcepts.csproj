@@ -75,6 +75,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pocs\Viewing3DPoc\Viewing3D.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pocs\CanvasAndShapesInShapes.xaml.cs">
@@ -82,6 +86,10 @@
     </Compile>
     <Compile Include="Pocs\ShapesAndBrushes.xaml.cs">
       <DependentUpon>ShapesAndBrushes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pocs\Viewing3DPoc\TransformMatrix.cs" />
+    <Compile Include="Pocs\Viewing3DPoc\Viewing3D.xaml.cs">
+      <DependentUpon>Viewing3D.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
